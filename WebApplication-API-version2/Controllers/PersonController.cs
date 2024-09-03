@@ -2,7 +2,6 @@
 using WebApplication_API_version2.DAL; // Imports the data access layer, specifically the ApplicationDBContext class.
 using WebApplication_API_version2.DTO; // Imports the DTO classes for person-related data.
 using WebApplication_API_version2.Mappers; // Imports the mapping methods for converting between models and DTOs.
-using Microsoft.AspNetCore.JsonPatch;
 
 namespace WebApplication_API_version2.Controllers // Defines the namespace for the controller class, which is essential for organizing code.
 {
@@ -72,43 +71,6 @@ namespace WebApplication_API_version2.Controllers // Defines the namespace for t
             return NoContent(); // Returns a 204 No Content response, indicating successful deletion.
         }
 
-        [HttpPatch("{id}")]
-        public IActionResult Patch(int id, [FromBody] JsonPatchDocument<UpdatePersonDTO> patchDoc)
-        {
-            if (patchDoc == null)
-            {
-                return BadRequest();
-            }
-
-            var person = _context.Persons.FirstOrDefault(p => p.Id == id);
-            if (person == null)
-            {
-                return NotFound();
-            }
-
-            var personToPatch = new UpdatePersonDTO
-            {
-                Name = person.Name,
-                Salary = person.Salary ?? 0,
-                MarketCapital = person.MarketCapital
-            };
-
-            patchDoc.ApplyTo(personToPatch, ModelState);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Manually map the patched fields back to the entity model
-            person.Name = personToPatch.Name ?? person.Name;
-            person.Salary = personToPatch.Salary != 0 ? personToPatch.Salary : person.Salary;
-            person.MarketCapital = personToPatch.MarketCapital != 0 ? personToPatch.MarketCapital : person.MarketCapital;
-
-            _context.SaveChanges();
-
-            return Ok(person.ToPersonDto());
-        }
 
     }
 }
