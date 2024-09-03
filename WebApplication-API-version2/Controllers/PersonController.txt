@@ -1,0 +1,57 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using WebApplication_API_version2.Models;
+
+namespace WebApplication_API_version2.Controllers
+{
+    [ApiController]
+    [Route("test/[Controller]")]
+
+    public class PersonController : ControllerBase
+    {
+        private static readonly string[] Name = new[]
+       {
+            "Ali", "Ahmad", "Neha", "Rimsha", "Umer", "Shamyem", "Laiba", "John", "Esha", "Aiza"
+        };
+
+
+        [HttpGet(Name = "GetPerson")]
+        public IEnumerable<Person> GetPerson()
+        {
+            return Enumerable.Range(1, 5).Select(index => new Person
+            {
+                JoiningDate = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                Id = 101,
+                Name = Name[Random.Shared.Next(Name.Length)]
+            })
+            .ToArray();
+        }
+
+        [HttpGet]
+        [Route("GetOnePerson")]
+        public IEnumerable<Person> GetOnePerson()
+        {
+            return Enumerable.Range(1, 2).Select(index => new Person
+            {
+                JoiningDate = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                Id = 101,
+                Name = Name[Random.Shared.Next(Name.Length)]
+            })
+            .ToArray();
+        }
+
+        [HttpGet]
+        [Route("GetPersonInfo")]
+        public String GetPersonInfo(string info)
+        {
+            return $"the infor you send in your request is {info}";
+        }
+        [HttpGet]
+        [Route("GetYourPerson")]
+        public String GetYourPerson([FromBody]Person request)
+        {
+            return $"The Person you mention is -> {request.Id}: Name: {request.Name}, Join Date:{request.JoiningDate}";
+        }
+
+    }
+}
