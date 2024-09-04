@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication_API_version2.DAL;
+using WebApplication_API_version2.Interfaces;
+using WebApplication_API_version2.Repository;
 
 namespace WebApplication_API_version2
 {
@@ -21,6 +23,7 @@ namespace WebApplication_API_version2
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+            builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 
 
 
