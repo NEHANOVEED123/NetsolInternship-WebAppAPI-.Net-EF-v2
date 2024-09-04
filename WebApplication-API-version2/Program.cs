@@ -14,7 +14,7 @@ namespace WebApplication_API_version2
             // Add services to the container.
 
             builder.Services.AddControllers();//This line registers the controllers with the dependency injection (DI) container. Controllers are responsible for handling HTTP requests in an MVC pattern.
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            
             builder.Services.AddEndpointsApiExplorer();//is used to help discover API endpoints in the application.
             builder.Services.AddSwaggerGen();//registers the Swagger generator, which is used to produce the OpenAPI specification. Swagger is used to describe the API and create interactive documentation.
 
@@ -24,7 +24,12 @@ namespace WebApplication_API_version2
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
             builder.Services.AddScoped<IPersonRepository, PersonRepository>();
-
+            builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+            builder.Services.AddControllers()//This line registers the controllers with the dependency injection (DI) container. Controllers are responsible for handling HTTP requests in an MVC pattern.
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
 
 
             var app = builder.Build();//method compiles and returns an instance of the WebApplication. This is where the app’s request pipeline is configured.

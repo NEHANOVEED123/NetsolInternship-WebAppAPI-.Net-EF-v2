@@ -5,6 +5,7 @@ using WebApplication_API_version2.Interfaces;
 using WebApplication_API_version2.Models;
 using System.Threading.Tasks;
 using WebApplication_API_version2.DTO;
+using WebApplication_API_version2.FilterQuery;
 
 namespace WebApplication_API_version2.Repository
 {
@@ -18,7 +19,10 @@ namespace WebApplication_API_version2.Repository
             _context = context;
             
         }
-
+        public Task<bool> PersonExists(int id)
+        {
+            return _context.Persons.AnyAsync(x => x.Id == id); 
+        }
         public async Task<Person> CreateAsync(Person personModel)
         {
             await _context.Persons.AddAsync(personModel);
@@ -26,29 +30,48 @@ namespace WebApplication_API_version2.Repository
             return personModel;
         }
 
-        public async Task<Person> DeleteAsync(int id)
+        public async Task<Person?> DeleteAsync(int id)
         {
-            var personModel =await _context.Persons.FirstOrDefaultAsync(x => x.Id == id);
-            if (personModel == null) 
-            { 
-                return null; 
+            var personModel = await _context.Persons
+                                            .Include(p => p.Comments)
+                                            .FirstOrDefaultAsync(x => x.Id == id);
+            if (personModel == null)
+            {
+                return null;
             }
-            _context.Persons.Remove(personModel);
-            await _context.SaveChangesAsync();
-            return personModel;
 
+            // Remove the associated comments first
+            _context.Comments.RemoveRange(personModel.Comments);
+
+            // Then remove the person
+            _context.Persons.Remove(personModel);
+
+            await _context.SaveChangesAsync();
+
+            return personModel;
         }
 
         //repository pattern
-        public async Task<List<Person>> GetAllAsync()
+        public async Task<List<Person>> GetAllAsync(QueryObject query)
         {
-            return  await _context.Persons.ToListAsync();
+            var person = _context.Persons.Include(c => c.Comments).AsQueryable(); 
+            if(!string.IsNullOrEmpty(query.Name))
+            {
+                person = person.Where(s=>s.Name.Contains(query.Name));
+            }
+            if (query.Salary.HasValue)
+            {
+                person = person.Where(s => s.Salary >= query.Salary.Value);
+            }
+            return await person.ToListAsync();
         }
 
         public async Task<Person?> GetByIdAsync(int id)
         {
-            return await _context.Persons.FindAsync(id);
+            return await _context.Persons.Include(c => c.Comments).FirstOrDefaultAsync(i => i.Id == id);
         }
+
+      
 
         public async Task<Person?> UpdateAsync(int id, UpdatePersonDTO personDTO)
         {

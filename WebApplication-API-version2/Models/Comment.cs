@@ -7,6 +7,6 @@
         public string Content { get; set; }= string.Empty;
         public DateTime CreatedOn { get; set; } = DateTime.Now;
         public int? PersonId { get; set; }
-        public Person? Person { get; set; }// Navigation property like Person.Name
+        public Person? Person { get; set; }// FK   ---- Navigation property like Person.Name
     }
 }

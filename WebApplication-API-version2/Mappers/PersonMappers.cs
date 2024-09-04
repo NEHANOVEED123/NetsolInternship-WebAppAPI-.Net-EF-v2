@@ -18,6 +18,7 @@ namespace WebApplication_API_version2.Mappers // Defines the namespace for the m
                 JoiningDate = personModel.JoiningDate, // Maps the Joining Date.
                 Salary = personModel.Salary, // Maps the Salary.
                 MarketCapital = personModel.MarketCapital, // Maps the Market Capital.
+                Comments = personModel.Comments.Select(c => c.ToCommentDto()).ToList()
             };
         }
 
